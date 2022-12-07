@@ -4,7 +4,7 @@ from typing import Iterator, Optional
 
 
 class Ls:
-    pass
+    ...
 
 
 @dataclasses.dataclass
@@ -53,6 +53,18 @@ class Dir:
         for subdir in self.subdirs:
             yield from subdir
 
+    def __gt__(self, other: "Dir") -> bool:
+        return self.size < other.size
+
+    @property
+    def path(self) -> str:
+        if self.parent:
+            return f"{self.parent.path}/{self.name}"
+        return ""
+
+    def __str__(self) -> str:
+        return f"{self.path} - {self.size}"
+
 
 @dataclasses.dataclass
 class Cd:
@@ -66,7 +78,7 @@ class Cd:
         return current_dir.into(self.dirname)
 
 
-def read_filesystem() -> Iterator[Cd | Ls | File | DirName]:
+def listing() -> Iterator[Cd | Ls | File | DirName]:
     with open("./inputs/7_input") as f:
         cd_prefix, ls_prefix = "$ cd ", "$ ls"
         for line in f:
@@ -117,11 +129,29 @@ def _(dirname: DirName, current_dir: Dir) -> Dir:
     return current_dir
 
 
-current_dir = ROOT_DIR
+def build_filesystem():
+    current_dir = ROOT_DIR
 
-for entry in read_filesystem():
-    current_dir = handle(entry, current_dir)
+    for entry in listing():
+        current_dir = handle(entry, current_dir)
 
-sizes: list[int] = [dir_.size for dir_ in ROOT_DIR if dir_.size <= 100_000]
-sizes.sort(reverse=True)
-print(sum(sizes))
+
+def small_sizes(max_size: int = 100_000) -> Iterator[Dir]:
+    return (dir_ for dir_ in ROOT_DIR if dir_.size <= max_size)
+
+
+def eligible_dir_freeing(missing_space: int) -> Iterator[Dir]:
+    return (dir_ for dir_ in ROOT_DIR if dir_.size >= missing_space)
+
+
+if __name__ == "__main__":
+    build_filesystem()
+    print("Part 1, total sum of small dirs:", sum(dir_.size for dir_ in small_sizes()))
+
+    needed_space = 30_000_000
+    total_space = 70_000_000
+    used_space = ROOT_DIR.size
+    available_space = total_space - used_space
+    missing_space = needed_space - available_space
+    eligible = sorted(eligible_dir_freeing(missing_space), reverse=True)
+    print("Part 2, Candidate for suppression:", eligible[0])
