@@ -42,6 +42,7 @@ class Play(Enum):
         for play in Play:
             if strategy.operator(play, self):
                 return play
+        raise ValueError(f"Invalid strategy {strategy}")
 
 
 def rounds(filename="./inputs/2_input") -> Iterable[tuple[Play, Play]]:

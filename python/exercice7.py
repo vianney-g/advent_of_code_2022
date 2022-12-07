@@ -87,7 +87,12 @@ ROOT_DIR = Dir("/")
 
 
 @singledispatch
-def handle(cd: Cd, current_dir: Dir) -> Dir:
+def handle(invalid, current_dir: Dir) -> Dir:
+    raise ValueError(f"Unknown entry {invalid}")
+
+
+@handle.register
+def _(cd: Cd, current_dir: Dir) -> Dir:
     match cd:
         case Cd(DirName("/")):
             return ROOT_DIR

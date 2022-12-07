@@ -7,7 +7,7 @@ Stack = list[str]
 def init_stack(raw_stacks: list[str]) -> list[Stack]:
     iterable = iter(raw_stacks[::-1])
     number_of_stacks = len(next(iterable).split())
-    stacks = [[] for _ in range(number_of_stacks)]
+    stacks: list[Stack] = [[] for _ in range(number_of_stacks)]
     for line in iterable:
         for i, item in enumerate(iter(line[1::4])):
             if item.strip():
