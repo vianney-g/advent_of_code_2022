@@ -35,10 +35,8 @@ class Machine:
     def draw_pixel(self):
         crt = self.cycle % 40
         pixel = "#" if crt in self.sprite_position else "."
-        print(pixel, end="")
-
-        if self.cycle % 40 == 0:
-            print("\n", end="")
+        end = "" if crt else "\n"
+        print(pixel, end=end)
 
     @property
     def signal_strength(self) -> SignalStrength:
